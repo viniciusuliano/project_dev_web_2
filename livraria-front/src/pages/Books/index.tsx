@@ -51,10 +51,14 @@ interface Filters {
 
 const GENRES = [
   { value: '', label: 'Todos' },
-  { value: 'FICTION', label: 'Ficção' },
-  { value: 'NON_FICTION', label: 'Não Ficção' },
+  { value: 'FICCAO', label: 'Ficção' },
+  { value: 'NAO_FICCAO', label: 'Não Ficção' },
   { value: 'ROMANCE', label: 'Romance' },
-  { value: 'MYSTERY', label: 'Mistério' },
+  { value: 'MISTERIO', label: 'Mistério' },
+  { value: 'DISTOPIA', label: 'Distopia' },
+  { value: 'SATIRA', label: 'Sátira' },
+  { value: 'REALISMO_MAGICO', label: 'Realismo Mágico' },
+  { value: 'FANTASIA', label: 'Fantasia' },
 ];
 
 const ORDERING_OPTIONS = [
@@ -75,6 +79,7 @@ function BookList() {
     year: '',
     ordering: '-publication_year'
   });
+  const [debouncedFilters, setDebouncedFilters] = useState(filters);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -85,17 +90,33 @@ function BookList() {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedFilters(filters);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [filters]);
+
   const fetchBooks = async () => {
     try {
       setLoading(true);
 
       const params = new URLSearchParams();
-      if (filters.author) params.append('author', filters.author);
-      if (filters.genre) params.append('genre', filters.genre);
-      if (filters.year) params.append('publication_year', filters.year);
-      if (filters.ordering) params.append('ordering', filters.ordering);
+      if (debouncedFilters.author) params.append('author__icontains', debouncedFilters.author);
+      if (debouncedFilters.genre) {
+        console.log('Enviando gênero:', debouncedFilters.genre);
+        params.append('genre', debouncedFilters.genre);
+      }
+      if (debouncedFilters.year) params.append('publication_year', debouncedFilters.year);
+      if (debouncedFilters.ordering) params.append('ordering', debouncedFilters.ordering);
 
-      const response = await api.get(`/books/?${params.toString()}`);
+      const url = `/books/?${params.toString()}`;
+      console.log('URL da requisição:', url);
+      
+      const response = await api.get(url);
+      console.log('Dados recebidos:', response.data);
+      
       const booksArray = Array.isArray(response.data.results) 
         ? response.data.results 
         : Array.isArray(response.data) 
@@ -104,6 +125,7 @@ function BookList() {
       
       setBooks(booksArray);
     } catch (err) {
+      console.error('Erro na requisição:', err);
       setError('Erro ao carregar os livros');
       setBooks([]);
     } finally {
@@ -113,7 +135,7 @@ function BookList() {
 
   useEffect(() => {
     fetchBooks();
-  }, [filters]);
+  }, [debouncedFilters]);
 
   const handleInputChange = (field: keyof Filters) => (
     event: React.ChangeEvent<HTMLInputElement>
@@ -274,6 +296,13 @@ function BookList() {
               value={filters.year}
               onChange={handleInputChange('year')}
               size="small"
+              InputProps={{
+                inputProps: { 
+                  min: 1800,
+                  max: new Date().getFullYear(),
+                  step: 1
+                }
+              }}
             />
           </Grid>
           <Grid item xs={12} sm={4}>

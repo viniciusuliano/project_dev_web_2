@@ -12,12 +12,14 @@ import {
 import api from '../../services/api';
 
 const GENRES = [
-  { value: 'FICTION', label: 'Ficção' },
-  { value: 'NON_FICTION', label: 'Não Ficção' },
+  { value: 'FICCAO', label: 'Ficção' },
+  { value: 'NAO_FICCAO', label: 'Não Ficção' },
   { value: 'ROMANCE', label: 'Romance' },
-  { value: 'MYSTERY', label: 'Mistério' },
-  { value: 'SCIFI', label: 'Ficção Científica' },
-  { value: 'FANTASY', label: 'Fantasia' },
+  { value: 'MISTERIO', label: 'Mistério' },
+  { value: 'DISTOPIA', label: 'Distopia' },
+  { value: 'SATIRA', label: 'Sátira' },
+  { value: 'REALISMO_MAGICO', label: 'Realismo Mágico' },
+  { value: 'FANTASIA', label: 'Fantasia' }
 ];
 
 function BookCreate() {

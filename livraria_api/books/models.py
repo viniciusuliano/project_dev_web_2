@@ -3,14 +3,14 @@ from django.contrib.auth.models import User
 
 class Book(models.Model):
     GENRE_CHOICES = [
-        ('FICTION', 'Ficção'),
-        ('NON_FICTION', 'Não Ficção'),
+        ('FICCAO', 'Ficção'),
+        ('NAO_FICCAO', 'Não Ficção'),
         ('ROMANCE', 'Romance'),
-        ('MYSTERY', 'Mistério'),
-        ('DYSTOPIAN', 'Distopia'),
-        ('SATIRE', 'Sátira'),
-        ('MAGICAL_REALISM', 'Realismo Mágico'),
-        ('FANTASY', 'Fantasia'),
+        ('MISTERIO', 'Mistério'),
+        ('DISTOPIA', 'Distopia'),
+        ('SATIRA', 'Sátira'),
+        ('REALISMO_MAGICO', 'Realismo Mágico'),
+        ('FANTASIA', 'Fantasia'),
     ]
 
     title = models.CharField(max_length=200)
