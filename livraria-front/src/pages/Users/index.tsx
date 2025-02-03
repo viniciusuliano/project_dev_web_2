@@ -1,19 +1,19 @@
-import { useState, useEffect } from 'react';
-import { 
-  Container, 
-  Typography, 
-  Button, 
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  CircularProgress,
-  Box,
-  Alert
+  Typography
 } from '@mui/material';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
@@ -74,9 +74,17 @@ function UserList() {
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
-        <Typography variant="h4">
-          Usuários
-        </Typography>
+        <Box display="flex" alignItems="center" gap={2}>
+          <Button 
+            variant="outlined"
+            onClick={() => navigate('/books')}
+          >
+            Voltar
+          </Button>
+          <Typography variant="h4">
+            Usuários
+          </Typography>
+        </Box>
         <Button 
           variant="contained" 
           onClick={() => navigate('/users/create')}
@@ -109,7 +117,13 @@ function UserList() {
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.is_staff ? 'Sim' : 'Não'}</TableCell>
                 <TableCell>
-                  {new Date(user.date_joined).toLocaleDateString('pt-BR')}
+                  {(() => {
+                    try {
+                      return new Date(user.date_joined).toLocaleDateString('pt-BR');
+                    } catch {
+                      return '-';
+                    }
+                  })()}
                 </TableCell>
                 <TableCell>
                   <Button
