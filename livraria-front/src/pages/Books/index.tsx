@@ -202,13 +202,15 @@ function BookList() {
           Livros
         </Typography>
         <Box>
-          <Button 
-            variant="contained" 
-            onClick={() => navigate('/books/create')}
-            sx={{ mr: 2 }}
-          >
-            Novo Livro
-          </Button>
+          {user?.is_staff && (
+            <Button 
+              variant="contained" 
+              onClick={() => navigate('/books/create')}
+              sx={{ mr: 2 }}
+            >
+              Novo Livro
+            </Button>
+          )}
           {user?.is_staff && (
             <>
               <Button 
@@ -309,6 +311,7 @@ function BookList() {
               <TableCell>Autor</TableCell>
               <TableCell>Gênero</TableCell>
               <TableCell>Ano</TableCell>
+              {user?.is_staff && <TableCell>Ações</TableCell>}
               <TableCell>Ações</TableCell>
             </TableRow>
           </TableHead>
@@ -322,20 +325,24 @@ function BookList() {
                   <TableCell>{book.publication_year}</TableCell>
                   <TableCell>
                     <Stack direction="row" spacing={1}>
-                      <Button
-                        size="small"
-                        color="primary"
-                        onClick={() => handleEditClick(book)}
-                      >
-                        Editar
-                      </Button>
-                      <Button
-                        size="small"
-                        color="error"
-                        onClick={() => handleDeleteClick(book.id)}
-                      >
-                        Deletar
-                      </Button>
+                      {user?.is_staff && (
+                        <>
+                          <Button
+                            size="small"
+                            color="primary"
+                            onClick={() => handleEditClick(book)}
+                          >
+                            Editar
+                          </Button>
+                          <Button
+                            size="small"
+                            color="error"
+                            onClick={() => handleDeleteClick(book.id)}
+                          >
+                            Deletar
+                          </Button>
+                        </>
+                      )}
                     </Stack>
                   </TableCell>
                 </TableRow>
