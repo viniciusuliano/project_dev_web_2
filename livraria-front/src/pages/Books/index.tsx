@@ -1,35 +1,35 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Container, 
-  Typography, 
-  Button, 
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  SelectChangeEvent,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  CircularProgress,
-  Box,
-  Alert,
   TextField,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  Grid,
-  SelectChangeEvent,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  DialogContentText,
-  Stack
-} from '@mui/material';
-import { useAuth } from '../../contexts/AuthContext';
-import api from '../../services/api';
+  Typography,
+} from "@mui/material";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import api from "../../services/api";
 
 interface Book {
   id: number;
@@ -50,34 +50,34 @@ interface Filters {
 }
 
 const GENRES = [
-  { value: '', label: 'Todos' },
-  { value: 'FICCAO', label: 'Ficção' },
-  { value: 'NAO_FICCAO', label: 'Não Ficção' },
-  { value: 'ROMANCE', label: 'Romance' },
-  { value: 'MISTERIO', label: 'Mistério' },
-  { value: 'DISTOPIA', label: 'Distopia' },
-  { value: 'SATIRA', label: 'Sátira' },
-  { value: 'REALISMO_MAGICO', label: 'Realismo Mágico' },
-  { value: 'FANTASIA', label: 'Fantasia' },
+  { value: "", label: "Todos" },
+  { value: "FICCAO", label: "Ficção" },
+  { value: "NAO_FICCAO", label: "Não Ficção" },
+  { value: "ROMANCE", label: "Romance" },
+  { value: "MISTERIO", label: "Mistério" },
+  { value: "DISTOPIA", label: "Distopia" },
+  { value: "SATIRA", label: "Sátira" },
+  { value: "REALISMO_MAGICO", label: "Realismo Mágico" },
+  { value: "FANTASIA", label: "Fantasia" },
 ];
 
 const ORDERING_OPTIONS = [
-  { value: '-publication_year', label: 'Mais recentes' },
-  { value: 'publication_year', label: 'Mais antigos' },
-  { value: '-views_count', label: 'Mais populares' },
-  { value: 'title', label: 'Título (A-Z)' },
-  { value: '-title', label: 'Título (Z-A)' },
+  { value: "-publication_year", label: "Mais recentes" },
+  { value: "publication_year", label: "Mais antigos" },
+  { value: "-views_count", label: "Mais populares" },
+  { value: "title", label: "Título (A-Z)" },
+  { value: "-title", label: "Título (Z-A)" },
 ];
 
 function BookList() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [filters, setFilters] = useState<Filters>({
-    author: '',
-    genre: '',
-    year: '',
-    ordering: '-publication_year'
+    author: "",
+    genre: "",
+    year: "",
+    ordering: "-publication_year",
   });
   const [debouncedFilters, setDebouncedFilters] = useState(filters);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
@@ -86,7 +86,7 @@ function BookList() {
   const [bookToDelete, setBookToDelete] = useState<number | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
-  
+
   const navigate = useNavigate();
   const { logout, user } = useAuth();
 
@@ -103,30 +103,33 @@ function BookList() {
       setLoading(true);
 
       const params = new URLSearchParams();
-      if (debouncedFilters.author) params.append('author__icontains', debouncedFilters.author);
+      if (debouncedFilters.author)
+        params.append("author", debouncedFilters.author);
       if (debouncedFilters.genre) {
-        console.log('Enviando gênero:', debouncedFilters.genre);
-        params.append('genre', debouncedFilters.genre);
+        console.log("Enviando gênero:", debouncedFilters.genre);
+        params.append("genre", debouncedFilters.genre);
       }
-      if (debouncedFilters.year) params.append('publication_year', debouncedFilters.year);
-      if (debouncedFilters.ordering) params.append('ordering', debouncedFilters.ordering);
+      if (debouncedFilters.year)
+        params.append("publication_year", debouncedFilters.year);
+      if (debouncedFilters.ordering)
+        params.append("ordering", debouncedFilters.ordering);
 
       const url = `/books/?${params.toString()}`;
-      console.log('URL da requisição:', url);
-      
+      console.log("URL da requisição:", url);
+
       const response = await api.get(url);
-      console.log('Dados recebidos:', response.data);
-      
-      const booksArray = Array.isArray(response.data.results) 
-        ? response.data.results 
-        : Array.isArray(response.data) 
-          ? response.data 
-          : [];
-      
+      console.log("Dados recebidos:", response.data);
+
+      const booksArray = Array.isArray(response.data.results)
+        ? response.data.results
+        : Array.isArray(response.data)
+        ? response.data
+        : [];
+
       setBooks(booksArray);
     } catch (err) {
-      console.error('Erro na requisição:', err);
-      setError('Erro ao carregar os livros');
+      console.error("Erro na requisição:", err);
+      setError("Erro ao carregar os livros");
       setBooks([]);
     } finally {
       setLoading(false);
@@ -137,23 +140,21 @@ function BookList() {
     fetchBooks();
   }, [debouncedFilters]);
 
-  const handleInputChange = (field: keyof Filters) => (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFilters(prev => ({
-      ...prev,
-      [field]: event.target.value
-    }));
-  };
+  const handleInputChange =
+    (field: keyof Filters) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      setFilters((prev) => ({
+        ...prev,
+        [field]: event.target.value,
+      }));
+    };
 
-  const handleSelectChange = (field: keyof Filters) => (
-    event: SelectChangeEvent
-  ) => {
-    setFilters(prev => ({
-      ...prev,
-      [field]: event.target.value
-    }));
-  };
+  const handleSelectChange =
+    (field: keyof Filters) => (event: SelectChangeEvent) => {
+      setFilters((prev) => ({
+        ...prev,
+        [field]: event.target.value,
+      }));
+    };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
@@ -169,10 +170,12 @@ function BookList() {
     if (bookToDelete) {
       try {
         await api.delete(`/books/${bookToDelete}/`);
-        setBooks(prevBooks => prevBooks.filter(book => book.id !== bookToDelete));
+        setBooks((prevBooks) =>
+          prevBooks.filter((book) => book.id !== bookToDelete)
+        );
         setDeleteDialogOpen(false);
       } catch (error) {
-        console.error('Erro ao deletar livro:', error);
+        console.error("Erro ao deletar livro:", error);
       }
     }
   };
@@ -191,15 +194,15 @@ function BookList() {
     if (editingBook) {
       try {
         await api.put(`/books/${editingBook.id}/`, editingBook);
-        setBooks(prevBooks => 
-          prevBooks.map(book => 
+        setBooks((prevBooks) =>
+          prevBooks.map((book) =>
             book.id === editingBook.id ? editingBook : book
           )
         );
         setEditDialogOpen(false);
         setEditingBook(null);
       } catch (error) {
-        console.error('Erro ao editar livro:', error);
+        console.error("Erro ao editar livro:", error);
       }
     }
   };
@@ -211,7 +214,12 @@ function BookList() {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+      >
         <CircularProgress />
       </Box>
     );
@@ -219,15 +227,18 @@ function BookList() {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
-        <Typography variant="h4">
-          Livros
-        </Typography>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={4}
+      >
+        <Typography variant="h4">Livros</Typography>
         <Box>
           {user?.is_staff && (
-            <Button 
-              variant="contained" 
-              onClick={() => navigate('/books/create')}
+            <Button
+              variant="contained"
+              onClick={() => navigate("/books/create")}
               sx={{ mr: 2 }}
             >
               Novo Livro
@@ -235,29 +246,25 @@ function BookList() {
           )}
           {user?.is_staff && (
             <>
-              <Button 
+              <Button
                 variant="contained"
                 color="secondary"
-                onClick={() => navigate('/users')}
+                onClick={() => navigate("/users")}
                 sx={{ mr: 2 }}
               >
                 Usuários
               </Button>
-              <Button 
+              <Button
                 variant="contained"
                 color="secondary"
-                onClick={() => navigate('/users/create')}
+                onClick={() => navigate("/users/create")}
                 sx={{ mr: 2 }}
               >
                 Criar Usuário
               </Button>
             </>
           )}
-          <Button 
-            variant="outlined" 
-            color="error"
-            onClick={logout}
-          >
+          <Button variant="outlined" color="error" onClick={logout}>
             Sair
           </Button>
         </Box>
@@ -270,7 +277,7 @@ function BookList() {
               fullWidth
               label="Autor"
               value={filters.author}
-              onChange={handleInputChange('author')}
+              onChange={handleInputChange("author")}
               size="small"
             />
           </Grid>
@@ -280,9 +287,9 @@ function BookList() {
               <Select
                 value={filters.genre}
                 label="Gênero"
-                onChange={handleSelectChange('genre')}
+                onChange={handleSelectChange("genre")}
               >
-                {GENRES.map(genre => (
+                {GENRES.map((genre) => (
                   <MenuItem key={genre.value} value={genre.value}>
                     {genre.label}
                   </MenuItem>
@@ -296,14 +303,14 @@ function BookList() {
               label="Ano"
               type="number"
               value={filters.year}
-              onChange={handleInputChange('year')}
+              onChange={handleInputChange("year")}
               size="small"
               InputProps={{
-                inputProps: { 
+                inputProps: {
                   min: 1800,
                   max: new Date().getFullYear(),
-                  step: 1
-                }
+                  step: 1,
+                },
               }}
             />
           </Grid>
@@ -313,9 +320,9 @@ function BookList() {
               <Select
                 value={filters.ordering}
                 label="Ordenar por"
-                onChange={handleSelectChange('ordering')}
+                onChange={handleSelectChange("ordering")}
               >
-                {ORDERING_OPTIONS.map(option => (
+                {ORDERING_OPTIONS.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
                   </MenuItem>
@@ -341,7 +348,6 @@ function BookList() {
               <TableCell>Gênero</TableCell>
               <TableCell>Ano</TableCell>
               {user?.is_staff && <TableCell>Ações</TableCell>}
-              <TableCell>Ações</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -387,14 +393,17 @@ function BookList() {
         </Table>
       </TableContainer>
 
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        maxWidth="sm"
+        fullWidth
+      >
         {selectedBook && (
           <>
-            <DialogTitle>
-              {selectedBook.title}
-            </DialogTitle>
+            <DialogTitle>{selectedBook.title}</DialogTitle>
             <DialogContent dividers>
-              <Box sx={{ display: 'grid', gap: 2 }}>
+              <Box sx={{ display: "grid", gap: 2 }}>
                 <Typography>
                   <strong>Autor:</strong> {selectedBook.author}
                 </Typography>
@@ -402,14 +411,13 @@ function BookList() {
                   <strong>Gênero:</strong> {selectedBook.genre}
                 </Typography>
                 <Typography>
-                  <strong>Ano de Publicação:</strong> {selectedBook.publication_year}
+                  <strong>Ano de Publicação:</strong>{" "}
+                  {selectedBook.publication_year}
                 </Typography>
                 <Typography>
                   <strong>Descrição:</strong>
                 </Typography>
-                <Typography>
-                  {selectedBook.description}
-                </Typography>
+                <Typography>{selectedBook.description}</Typography>
                 {selectedBook.views_count !== undefined && (
                   <Typography>
                     <strong>Visualizações:</strong> {selectedBook.views_count}
@@ -417,8 +425,10 @@ function BookList() {
                 )}
                 {selectedBook.created_at && (
                   <Typography>
-                    <strong>Adicionado em:</strong>{' '}
-                    {new Date(selectedBook.created_at).toLocaleDateString('pt-BR')}
+                    <strong>Adicionado em:</strong>{" "}
+                    {new Date(selectedBook.created_at).toLocaleDateString(
+                      "pt-BR"
+                    )}
                   </Typography>
                 )}
               </Box>
@@ -428,7 +438,7 @@ function BookList() {
                 Fechar
               </Button>
               {user?.is_staff && (
-                <Button 
+                <Button
                   onClick={() => {
                     handleCloseDialog();
                     navigate(`/books/${selectedBook.id}/edit`);
@@ -450,12 +460,11 @@ function BookList() {
         aria-labelledby="delete-dialog-title"
         aria-describedby="delete-dialog-description"
       >
-        <DialogTitle id="delete-dialog-title">
-          Confirmar Deleção
-        </DialogTitle>
+        <DialogTitle id="delete-dialog-title">Confirmar Deleção</DialogTitle>
         <DialogContent>
           <DialogContentText id="delete-dialog-description">
-            Tem certeza que deseja deletar este livro? Esta ação não pode ser desfeita.
+            Tem certeza que deseja deletar este livro? Esta ação não pode ser
+            desfeita.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -475,43 +484,51 @@ function BookList() {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle id="edit-dialog-title">
-          Editar Livro
-        </DialogTitle>
+        <DialogTitle id="edit-dialog-title">Editar Livro</DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ pt: 2, pb: 2 }}>
             <TextField
               label="Título"
               fullWidth
-              value={editingBook?.title || ''}
-              onChange={(e) => setEditingBook(prev => 
-                prev ? { ...prev, title: e.target.value } : null
-              )}
+              value={editingBook?.title || ""}
+              onChange={(e) =>
+                setEditingBook((prev) =>
+                  prev ? { ...prev, title: e.target.value } : null
+                )
+              }
             />
             <TextField
               label="Autor"
               fullWidth
-              value={editingBook?.author || ''}
-              onChange={(e) => setEditingBook(prev => 
-                prev ? { ...prev, author: e.target.value } : null
-              )}
+              value={editingBook?.author || ""}
+              onChange={(e) =>
+                setEditingBook((prev) =>
+                  prev ? { ...prev, author: e.target.value } : null
+                )
+              }
             />
             <TextField
               label="Ano de Publicação"
               type="number"
               fullWidth
-              value={editingBook?.publication_year || ''}
-              onChange={(e) => setEditingBook(prev => 
-                prev ? { ...prev, publication_year: Number(e.target.value) } : null
-              )}
+              value={editingBook?.publication_year || ""}
+              onChange={(e) =>
+                setEditingBook((prev) =>
+                  prev
+                    ? { ...prev, publication_year: Number(e.target.value) }
+                    : null
+                )
+              }
             />
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={handleEditCancel}>
-            Cancelar
-          </Button>
-          <Button onClick={handleEditConfirm} variant="contained" color="primary">
+          <Button onClick={handleEditCancel}>Cancelar</Button>
+          <Button
+            onClick={handleEditConfirm}
+            variant="contained"
+            color="primary"
+          >
             Salvar
           </Button>
         </DialogActions>
